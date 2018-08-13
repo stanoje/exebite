@@ -1,9 +1,15 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections;
+using System.Linq;
 using System.Threading.Tasks;
 using Exebite.Common;
+using Exebite.DomainModel;
 using Exebite.DtoModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using WebClient.Models;
 using WebClient.Services;
 
 namespace WebClient.Controllers
@@ -29,21 +35,61 @@ namespace WebClient.Controllers
             return View(res.Items);
         }
 
-        // GET: DailyMenuDtoes/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+        //// GET: DailyMenuDtoes/Details/5
+        //public async Task<IActionResult> Details(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
 
+        //    var dailyMenuDto = await _service.QueryAsync(new DailyMenuQueryDto { Id = id, Page = 1, Size = 1 }).ConfigureAwait(false);
+        //    if (dailyMenuDto == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    return View(dailyMenuDto.Items.First());
+        //}
+
+        // Requires using Microsoft.AspNetCore.Mvc.Rendering;
+
+        public async Task<IActionResult> Details(int? id, FormCollection searchForm)
+        {
+            // Use LINQ to get list of genres.
+            // formcollection dodao i probao da radim tako formu. Treba videti kako napraviti kontrolu koja ce otvarati popup
+            // 
+            var queryDto = new DailyMenuQueryDto()
+            {
+                Page = 1,
+                Size = QueryConstants.MaxElements - 1
+            };
             var dailyMenuDto = await _service.QueryAsync(new DailyMenuQueryDto { Id = id, Page = 1, Size = 1 }).ConfigureAwait(false);
             if (dailyMenuDto == null)
             {
                 return NotFound();
             }
 
-            return View(dailyMenuDto.Items.First());
+            var foods = dailyMenuDto.Items.First().Foods.AsEnumerable();
+
+            if (!String.IsNullOrEmpty(searchForm["searchString"]))
+            {
+                foods = foods.Where(s => s.Name.Contains(searchForm["searchString"]));
+            }
+
+            // if (!String.IsNullOrEmpty(foodType))
+            if (!String.IsNullOrEmpty(searchForm["foodType"]))
+            {
+                foods = foods.Where(x => x.Type == searchForm["foodType"]);
+            }
+
+            var dailyMenuViewModel = new DailyMenuViewModel
+            {
+                foods = foods.ToList(),
+                RestaurantId = dailyMenuDto.Items.First().RestaurantId
+            };
+
+            return View(dailyMenuViewModel);
         }
 
         // GET: DailyMenuDtoes/Create

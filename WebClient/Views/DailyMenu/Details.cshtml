@@ -1,25 +1,89 @@
-﻿@model Exebite.DtoModels.DailyMenuDto
+﻿@model DailyMenuViewModel
 
 @{
     ViewData["Title"] = "Details";
 }
-
+@using Exebite.DomainModel
 <h2>Daily menu details</h2>
+
+
+
+@using (Html.BeginForm("Details", "DailyMenu", FormMethod.Get))
+{
+
+    <div class="col-md-6 form-group">
+        <div class="row">
+            <label>Food Type: </label>
+            <input type="text" id="foodType" name="foodType" />
+        </div>
+        <div class="row">
+            <label>Search name: </label>
+            <input type="text" id="searchString" name="searchString" />
+        </div>
+        <input type="submit" id="submitId" value="Filter" />
+    </div>
+
+
+    @*<div class="row">
+            <div class="col-md-6 form-group">
+                <label>Subscribe to:</label>
+                <div>
+                    @for (var i = 0; i < Model.EmailPromos.Count; i++)
+                    {
+                        @Html.CheckBoxFor(e => e.EmailPromos[i].IsSubscribed)
+                        <span>@Model.EmailPromos[i].Title</span>
+                        @Html.HiddenFor(e => e.EmailPromos[i].Id)
+                        @Html.HiddenFor(e => e.EmailPromos[i].Title)
+                    }
+                </div>
+            </div>
+        </div>*@
+    @*<div class="row">
+            <div class="col-md-6">
+                <h3>Billing Address</h3>
+                @Html.EditorFor(x => x.BillingAddress)
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Mailing Address</h3>
+                @Html.EditorFor(x => x.MailingAddress)
+                <input type="submit" class="pull-right btn btn-primary" />
+            </div>
+        </div>*@
+}
+
+
+@*<form asp-controller="DailyMenu" asp-action="Details" method="get">
+        <p>
+           @Html.DropDownList("foodType",
+                Html.GetEnumSelectList<FoodType>(),
+                "All types", new { @class = "form-control" })
+
+
+            <select asp-for="FoodType" asp-items="@Html.GetEnumSelectList<FoodType>()">
+                <option value="">All types</option>
+            </select>
+
+            Title: <input type="text" name="SearchString">
+            <input type="submit" value="Filter" />
+        </p>
+    </form>*@
 
 <div>
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.RestaurantId)
+            @Html.DisplayNameFor(model => model.foods[0].RestaurantId)
         </dt>
         <dd>
             @Html.DisplayFor(model => model.RestaurantId)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Foods)
+            @Html.DisplayNameFor(model => model.foods[0].Name)
         </dt>
 
-        @foreach (var item in Model.Foods)
+        @foreach (var item in Model.foods)
         {
             <dd>
                 @Html.DisplayFor(modelItem => item.Name)

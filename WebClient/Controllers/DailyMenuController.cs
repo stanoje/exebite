@@ -54,7 +54,7 @@ namespace WebClient.Controllers
 
         // Requires using Microsoft.AspNetCore.Mvc.Rendering;
 
-        public async Task<IActionResult> Details(int? id, FormCollection searchForm)
+        public async Task<IActionResult> Details(int? id, DailyMenuQueryModel queryModel)
         {
             // Use LINQ to get list of genres.
             // formcollection dodao i probao da radim tako formu. Treba videti kako napraviti kontrolu koja ce otvarati popup
@@ -72,16 +72,7 @@ namespace WebClient.Controllers
 
             var foods = dailyMenuDto.Items.First().Foods.AsEnumerable();
 
-            if (!String.IsNullOrEmpty(searchForm["searchString"]))
-            {
-                foods = foods.Where(s => s.Name.Contains(searchForm["searchString"]));
-            }
 
-            // if (!String.IsNullOrEmpty(foodType))
-            if (!String.IsNullOrEmpty(searchForm["foodType"]))
-            {
-                foods = foods.Where(x => x.Type == searchForm["foodType"]);
-            }
 
             var dailyMenuViewModel = new DailyMenuViewModel
             {

@@ -56,9 +56,6 @@ namespace WebClient.Controllers
 
         public async Task<IActionResult> Details(int? id, DailyMenuQueryModel queryModel)
         {
-            // Use LINQ to get list of genres.
-            // formcollection dodao i probao da radim tako formu. Treba videti kako napraviti kontrolu koja ce otvarati popup
-            // 
             var queryDto = new DailyMenuQueryDto()
             {
                 Page = 1,
@@ -71,8 +68,6 @@ namespace WebClient.Controllers
             }
 
             var foods = dailyMenuDto.Items.First().Foods.AsEnumerable();
-
-
 
             var dailyMenuViewModel = new DailyMenuViewModel
             {

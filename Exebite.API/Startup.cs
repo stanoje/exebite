@@ -54,6 +54,8 @@ namespace Exebite.API
                         googleOptions.ClientSecret = _configuration["Authentication:Google:ClientSecret"];
                     });
 
+            services.AddCors();
+
             services.AddMvc();
 
             services.AddAuthorization(options => options.AddCustomPolicies());
@@ -93,6 +95,12 @@ namespace Exebite.API
             //app.UseAuthentication();
 
             app.UseStatusCodePages();
+
+            app.UseCors(builder => builder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials());
 
             app.UseMvc();
 

@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Exebite.DtoModels;
-using Exebite.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebClient.Models;
 using WebClient.Services;
 
 namespace WebClient.Controllers
@@ -18,15 +18,20 @@ namespace WebClient.Controllers
         }
 
         // GET: Location
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
+            var pageSize = 3;
             var queryDto = new LocationQueryDto()
             {
-                Page = 1,
-                Size = QueryConstants.MaxElements - 1
+                Page = page,
+                Size = pageSize
             };
             var res = await _service.QueryAsync(queryDto).ConfigureAwait(false);
-            return View(res.Items);
+
+            //return View(new PaginatedList<LocationDto>.CreateAsync(students.AsNoTracking(), page ?? 1, pageSize));
+            var pagination = new PaginatedList<LocationDto>(res.Items.ToList(), res.Total, page, pageSize);
+
+            return View(pagination);
         }
 
         // GET: Location/Details/5

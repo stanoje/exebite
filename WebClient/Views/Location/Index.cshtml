@@ -13,10 +13,10 @@
     <thead>
         <tr>
             <th>
-                Name
+                @Html.DisplayNameFor(model => model.First().Name)
             </th>
             <th>
-                Address
+                @Html.DisplayNameFor(model => model.First().Address)
             </th>
             <th></th>
         </tr>
@@ -42,3 +42,4 @@
 </table>
 
 @await Html.PartialAsync("_Pagination", Model)
+@await Html.PartialAsync("_ComplexTable", Model)

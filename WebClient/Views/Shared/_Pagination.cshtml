@@ -1,0 +1,92 @@
+﻿@model PaginatedList<Exebite.DtoModels.LocationDto>
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+
+    var count = 5;
+    var pages = new List<int>();
+    var offset = count / 2;
+    var start = Model.PageIndex - offset;
+    var end = Model.PageIndex + offset;
+
+    start = end > Model.TotalPages ? Model.TotalPages - count + 1 : start;
+    start = start <= 0 ? 1 : start;
+
+    for (var i = 0; i < count && start + i <= Model.TotalPages; i++)
+    {
+        pages.Add(start + i);
+    }
+
+}
+
+<nav>
+    <ul class="pagination">
+        <li class="page-item">
+            <a asp-action="Index"
+               asp-route-page="1"
+               class="page-link">
+                First
+            </a>
+        </li>
+        <li class="page-item @prevDisabled">
+            @if (!Model.HasPreviousPage)
+            {
+                <span class="page-link">Previous</span>
+            }
+            else
+            {
+                <a asp-action="Index"
+                   asp-route-page="@(Model.PageIndex - 1)"
+                   class="page-link">
+                    Previous
+                </a>
+            }
+        </li>
+        @foreach (var currPage in pages)
+        {
+            if (currPage == Model.PageIndex)
+            {
+                <li class="page-item active">
+                    <a asp-action="Index"
+                       asp-route-page="@currPage"
+                       class="page-link">
+                        @currPage
+                    </a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item">
+                    <a asp-action="Index"
+                       asp-route-page="@currPage"
+                       class="page-link">
+                        @currPage
+                    </a>
+                </li>
+            }
+        }
+        <li class="page-item @nextDisabled">
+            @if (!Model.HasNextPage)
+            {
+                <span class="page-link">Next</span>
+            }
+            else
+            {
+
+                <a asp-action="Index"
+                   asp-route-page="@(Model.PageIndex + 1)"
+                   class="page-link @nextDisabled">
+                    Next
+                </a>
+            }
+        </li>
+        <li class="page-item">
+            <a asp-action="Index"
+               asp-route-page="@Model.TotalPages"
+               class="page-link">
+                Last
+            </a>
+        </li>
+    </ul>
+</nav>

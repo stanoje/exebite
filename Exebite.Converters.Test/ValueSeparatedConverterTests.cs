@@ -7,11 +7,11 @@ using Xunit;
 
 namespace Exebite.Converters.Test
 {
-    public class ValueSepartedConverterTests
+    public class ValueSeparatedConverterTests
     {
         private readonly IEnumerable<TestClass> _testClasses;
 
-        public ValueSepartedConverterTests()
+        public ValueSeparatedConverterTests()
         {
             _testClasses = Enumerable.Range(1, int.MaxValue).Select(content => new TestClass
             {
@@ -31,7 +31,7 @@ namespace Exebite.Converters.Test
         public void Serialize_ElementsInList_HeaderAndBodyExists(int numberOfBodyElements)
         {
             // Arrange
-            var sut = new ValueSepartedConverter();
+            var sut = new ValueSeparatedConverter();
             var expectedSplitCharacters = (typeof(TestClass).GetProperties().Length * (numberOfBodyElements + 1)) - numberOfBodyElements;
             var delimiter = new TestDelimiter();
 
@@ -47,7 +47,7 @@ namespace Exebite.Converters.Test
         public void Serialize_HeaderNames_FromPropertyAndHeaderAttribute()
         {
             // Arrange
-            var sut = new ValueSepartedConverter();
+            var sut = new ValueSeparatedConverter();
             var delimiter = new TestDelimiter();
 
             // Act
@@ -62,7 +62,7 @@ namespace Exebite.Converters.Test
         public void Serialize_NoHeaderNames_OnlyPropertyNames()
         {
             // Arrange
-            var sut = new ValueSepartedConverter();
+            var sut = new ValueSeparatedConverter();
             var delimiter = new TestDelimiter();
 
             // Act
@@ -76,7 +76,7 @@ namespace Exebite.Converters.Test
         public void Serialize_NoPropertiesInClass_EmptyResult()
         {
             // Arrange
-            var sut = new ValueSepartedConverter();
+            var sut = new ValueSeparatedConverter();
             var delimiter = new TestDelimiter();
 
             // Act
@@ -90,7 +90,7 @@ namespace Exebite.Converters.Test
         public void Deserialize_TextHasNoValidText_EmptyResult()
         {
             // Arrange
-            var sut = new ValueSepartedConverter();
+            var sut = new ValueSeparatedConverter();
 
             // Act
             var result = sut.Deserialize<NoProperty>(new[] { "NoHeader" }, new TestDelimiter());
@@ -103,7 +103,7 @@ namespace Exebite.Converters.Test
         public void Deserialize_TextHasNoValidText_NoPropertyClassMapped()
         {
             // Arrange
-            var sut = new ValueSepartedConverter();
+            var sut = new ValueSeparatedConverter();
 
             // Act
             var result = sut.Deserialize<NoProperty>(new[] { "Header", "Body, part 2" }, new TestDelimiter());
@@ -116,7 +116,7 @@ namespace Exebite.Converters.Test
         public void Deserialize_TextHasValidText_PropertyMapped()
         {
             // Arrange
-            var sut = new ValueSepartedConverter();
+            var sut = new ValueSeparatedConverter();
             var expectedValues = new TestClass
             {
                 Name = "body name",
@@ -155,7 +155,7 @@ namespace Exebite.Converters.Test
         public void Deserialize_TextHasEmptyStringTypeValue_PropertyMappedToDefault()
         {
             // Arrange
-            var sut = new ValueSepartedConverter();
+            var sut = new ValueSeparatedConverter();
             var expectedValues = new TestClass
             {
                 Name = "1",
@@ -192,7 +192,7 @@ namespace Exebite.Converters.Test
         public void Deserialize_TextHasWrongBodyValueTypes_PropertyMappedToNull()
         {
             // Arrange
-            var sut = new ValueSepartedConverter();
+            var sut = new ValueSeparatedConverter();
             var expectedValues = new TestClass
             {
                 Name = null,

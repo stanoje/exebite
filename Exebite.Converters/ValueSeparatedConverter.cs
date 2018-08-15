@@ -8,8 +8,15 @@ using Exebite.Converters.Delimiters;
 
 namespace Exebite.Converters
 {
-    public class ValueSepartedConverter : IValueSepartedConverter
+    public class ValueSeparatedConverter : IValueSeparatedConverter
     {
+        /// <summary>
+        /// Accepts a list of objects to be serialized to value separated file.
+        /// </summary>
+        /// <typeparam name="T">Object definition to be serialized</typeparam>
+        /// <param name="input">Collection of objects to be serialized</param>
+        /// <param name="delimiter">Delimiter to be used</param>
+        /// <returns>CSV string</returns>
         public string Serialize<T>(IEnumerable<T> input, Delimiter delimiter) where T : class
         {
             var properties = typeof(T).GetProperties();
@@ -42,10 +49,10 @@ namespace Exebite.Converters
         /// <summary>
         /// Deserializes the value separated file and maps output to collection of objects.
         /// </summary>
-        /// <typeparam name="T">Type of the parameter</typeparam>
+        /// <typeparam name="T">Object definition to be deserialized</typeparam>
         /// <param name="inputLines">Lines to be split</param>
-        /// <param name="delimiter">Delimiter of the values</param>
-        /// <returns></returns>
+        /// <param name="delimiter">The delimiter</param>
+        /// <returns>Collection if the <typeparamref name="T"/></returns>
         public IEnumerable<T> Deserialize<T>(string[] inputLines, Delimiter delimiter) where T : new()
         {
             var header = inputLines[0].Split(new[] { delimiter.Value }, StringSplitOptions.None);

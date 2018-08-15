@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Exebite.DtoModels.DailyMenuDto>
+﻿@model PaginatedList<Exebite.DtoModels.DailyMenuDto>
 
 @{
     ViewData["Title"] = "Index";
@@ -13,10 +13,10 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.RestaurantId)
+                @Html.DisplayNameFor(model => model.First().RestaurantId)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Foods)
+                @Html.DisplayNameFor(model => model.First().Foods)
             </th>
             <th></th>
         </tr>
@@ -40,3 +40,5 @@
         }
     </tbody>
 </table>
+
+@await Html.PartialAsync("_Pagination", Model)

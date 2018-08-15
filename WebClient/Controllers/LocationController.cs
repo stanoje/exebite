@@ -28,7 +28,6 @@ namespace WebClient.Controllers
             };
             var res = await _service.QueryAsync(queryDto).ConfigureAwait(false);
 
-            //return View(new PaginatedList<LocationDto>.CreateAsync(students.AsNoTracking(), page ?? 1, pageSize));
             var pagination = new PaginatedList<LocationDto>(res.Items.ToList(), res.Total, page, pageSize);
 
             return View(pagination);

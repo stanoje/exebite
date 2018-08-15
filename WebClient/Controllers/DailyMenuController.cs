@@ -24,15 +24,18 @@ namespace WebClient.Controllers
         }
 
         // GET: DailyMenuDtoes
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
+            var pageSize = 1;
             var queryDto = new DailyMenuQueryDto()
             {
-                Page = 1,
-                Size = QueryConstants.MaxElements - 1
+                Page = page,
+                Size = pageSize
             };
             var res = await _service.QueryAsync(queryDto).ConfigureAwait(false);
-            return View(res.Items);
+            var pagination = new PaginatedList<DailyMenuDto>(res.Items.ToList(), res.Total, page, pageSize);
+
+            return View(pagination);
         }
 
         //// GET: DailyMenuDtoes/Details/5

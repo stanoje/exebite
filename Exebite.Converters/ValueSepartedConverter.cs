@@ -193,8 +193,8 @@ namespace Exebite.Converters
             }
 
             if (System.Array.Find(property.GetCustomAttributes(true), x => x is BoolToIntAttribute) is BoolToIntAttribute boolToIntAttribute
-                && (property.PropertyType == typeof(Boolean)
-                    || property.PropertyType == typeof(Boolean?)))
+                && (property.PropertyType == typeof(bool)
+                    || property.PropertyType == typeof(bool?)))
             {
                 return ((bool)propertyValue) ? "1" : "0";
             }

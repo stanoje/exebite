@@ -2,12 +2,14 @@
 using System.Threading.Tasks;
 using Exebite.Common;
 using Exebite.DtoModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebClient.Services;
 
 namespace WebClient.Controllers
 {
+    [Authorize]
     public class CustomerController : Controller
     {
         private readonly ICustomerService _service;
@@ -25,7 +27,8 @@ namespace WebClient.Controllers
                 Page = 1,
                 Size = QueryConstants.MaxElements - 1
             };
-            var res = await _service.QueryAsync(queryDto).ConfigureAwait(false);
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            var res = await _service.QueryAsync(queryDto, authToken).ConfigureAwait(false);
             return View(res.Items);
         }
 
@@ -37,7 +40,8 @@ namespace WebClient.Controllers
                 return NotFound();
             }
 
-            var customerDto = await _service.QueryAsync(new CustomerQueryDto { Id = id, Page = 1, Size = 1 }).ConfigureAwait(false);
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            var customerDto = await _service.QueryAsync(new CustomerQueryDto { Id = id, Page = 1, Size = 1 }, authToken).ConfigureAwait(false);
             if (customerDto == null)
             {
                 return NotFound();
@@ -61,13 +65,14 @@ namespace WebClient.Controllers
         {
             if (ModelState.IsValid)
             {
+                var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
                 await _service.CreateAsync(new CreateCustomerDto
                 {
                     Name = model.Name,
                     Balance = model.Balance,
                     GoogleUserId = model.GoogleUserId,
                     LocationId = model.LocationId
-                }).ConfigureAwait(false);
+                }, authToken).ConfigureAwait(false);
                 return RedirectToAction(nameof(Index));
             }
             return View(model);
@@ -81,7 +86,8 @@ namespace WebClient.Controllers
                 return NotFound();
             }
 
-            var customerDto = await _service.QueryAsync(new CustomerQueryDto { Id = id, Page = 1, Size = 1 }).ConfigureAwait(false);
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            var customerDto = await _service.QueryAsync(new CustomerQueryDto { Id = id, Page = 1, Size = 1 }, authToken).ConfigureAwait(false);
             if (customerDto.Total == 0)
             {
                 return NotFound();
@@ -105,6 +111,7 @@ namespace WebClient.Controllers
             {
                 try
                 {
+                    var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
                     await _service.UpdateAsync(id, new UpdateCustomerDto
                     {
                         Name = model.Name,
@@ -112,7 +119,7 @@ namespace WebClient.Controllers
                         GoogleUserId = model.GoogleUserId,
                         LocationId = model.LocationId ?? 0,
                         RoleId = model.RoleId ?? 0
-                    }).ConfigureAwait(false);
+                    }, authToken).ConfigureAwait(false);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -138,7 +145,8 @@ namespace WebClient.Controllers
                 return NotFound();
             }
 
-            var customerDto = await _service.QueryAsync(new CustomerQueryDto { Id = id, Page = 1, Size = 1 }).ConfigureAwait(false);
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            var customerDto = await _service.QueryAsync(new CustomerQueryDto { Id = id, Page = 1, Size = 1 }, authToken).ConfigureAwait(false);
             if (customerDto.Total == 0)
             {
                 return NotFound();
@@ -152,13 +160,15 @@ namespace WebClient.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _service.DeleteByIdAsync(id).ConfigureAwait(false);
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            await _service.DeleteByIdAsync(id, authToken).ConfigureAwait(false);
             return RedirectToAction(nameof(Index));
         }
 
         private bool CustomerDtoExists(int id)
         {
-            return _service.QueryAsync(new CustomerQueryDto { Id = id, Page = 1, Size = 1 }).Result.Total != 0;
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            return _service.QueryAsync(new CustomerQueryDto { Id = id, Page = 1, Size = 1 }, authToken).Result.Total != 0;
         }
     }
 }

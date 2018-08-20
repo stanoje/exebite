@@ -6,7 +6,7 @@ using Exebite.API.Authorization;
 using Exebite.Business;
 using Exebite.Common;
 using Exebite.DataAccess;
-using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -42,17 +42,17 @@ namespace Exebite.API
                 options.Events.OnRedirectToLogin = Helper.ReplaceRedirector(HttpStatusCode.Unauthorized, options.Events.OnRedirectToLogin);
             });
 
-            services.AddAuthentication(
-                    options =>
-                    {
-                        options.DefaultAuthenticateScheme = GoogleDefaults.AuthenticationScheme;
-                        options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-                    })
-                    .AddGoogle(googleOptions =>
-                    {
-                        googleOptions.ClientId = _configuration["Authentication:Google:ClientId"];
-                        googleOptions.ClientSecret = _configuration["Authentication:Google:ClientSecret"];
-                    });
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(o =>
+            {
+                o.SecurityTokenValidators.Clear();
+                o.SecurityTokenValidators.Add(new GoogleTokenValidator(_configuration));
+            });
 
             services.AddCors();
 
@@ -92,7 +92,7 @@ namespace Exebite.API
                 app.UseExceptionHandler("/error");
             }
 
-            //app.UseAuthentication();
+            app.UseAuthentication();
 
             app.UseStatusCodePages();
 

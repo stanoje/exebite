@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 
@@ -19,6 +20,14 @@ namespace WebClient.Wrappers
             {
                 BaseAddress = new Uri(uri)
             };
+        }
+
+        public HttpRequestHeaders DefaultRequestHeaders
+        {
+            get
+            {
+                return _client.DefaultRequestHeaders;
+            }
         }
 
         public async Task<HttpResponseMessage> DeleteAsync(string requestUri)

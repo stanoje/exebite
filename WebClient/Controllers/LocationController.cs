@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Exebite.DtoModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebClient.Models;
@@ -8,6 +9,7 @@ using WebClient.Services;
 
 namespace WebClient.Controllers
 {
+    [Authorize]
     public class LocationController : Controller
     {
         private readonly ILocationService _service;
@@ -26,7 +28,8 @@ namespace WebClient.Controllers
                 Page = page,
                 Size = pageSize
             };
-            var res = await _service.QueryAsync(queryDto).ConfigureAwait(false);
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            var res = await _service.QueryAsync(queryDto, authToken).ConfigureAwait(false);
 
             var pagination = new PaginatedList<LocationDto>(res.Items.ToList(), res.Total, page, pageSize);
 
@@ -40,8 +43,8 @@ namespace WebClient.Controllers
             {
                 return NotFound();
             }
-
-            var locationDto = await _service.QueryAsync(new LocationQueryDto { Id = id, Page = 1, Size = 1 }).ConfigureAwait(false);
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            var locationDto = await _service.QueryAsync(new LocationQueryDto { Id = id, Page = 1, Size = 1 }, authToken).ConfigureAwait(false);
             if (locationDto.Total == 0)
             {
                 return NotFound();
@@ -65,7 +68,8 @@ namespace WebClient.Controllers
         {
             if (ModelState.IsValid)
             {
-                await _service.CreateAsync(new CreateLocationDto { Name = model.Name, Address = model.Address }).ConfigureAwait(false);
+                var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+                await _service.CreateAsync(new CreateLocationDto { Name = model.Name, Address = model.Address }, authToken).ConfigureAwait(false);
                 return RedirectToAction(nameof(Index));
             }
             return View(model);
@@ -79,7 +83,8 @@ namespace WebClient.Controllers
                 return NotFound();
             }
 
-            var locationDto = await _service.QueryAsync(new LocationQueryDto { Id = id, Page = 1, Size = 1 }).ConfigureAwait(false);
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            var locationDto = await _service.QueryAsync(new LocationQueryDto { Id = id, Page = 1, Size = 1 }, authToken).ConfigureAwait(false);
             if (locationDto.Total == 0)
             {
                 return NotFound();
@@ -103,7 +108,8 @@ namespace WebClient.Controllers
             {
                 try
                 {
-                    await _service.UpdateAsync(id, new UpdateLocationDto { Name = model.Name, Address = model.Address }).ConfigureAwait(false);
+                    var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+                    await _service.UpdateAsync(id, new UpdateLocationDto { Name = model.Name, Address = model.Address }, authToken).ConfigureAwait(false);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -128,8 +134,8 @@ namespace WebClient.Controllers
             {
                 return NotFound();
             }
-
-            var locationDto = await _service.QueryAsync(new LocationQueryDto { Id = id, Page = 1, Size = 1 }).ConfigureAwait(false);
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            var locationDto = await _service.QueryAsync(new LocationQueryDto { Id = id, Page = 1, Size = 1 }, authToken).ConfigureAwait(false);
             if (locationDto.Total == 0)
             {
                 return NotFound();
@@ -143,13 +149,15 @@ namespace WebClient.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _service.DeleteByIdAsync(id).ConfigureAwait(false);
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            await _service.DeleteByIdAsync(id, authToken).ConfigureAwait(false);
             return RedirectToAction(nameof(Index));
         }
 
         private bool LocationExists(int id)
         {
-            return _service.QueryAsync(new LocationQueryDto { Id = id, Page = 1, Size = 1 }).Result.Total != 0;
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            return _service.QueryAsync(new LocationQueryDto { Id = id, Page = 1, Size = 1 }, authToken).Result.Total != 0;
         }
     }
 }

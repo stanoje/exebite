@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace WebClient.Wrappers
@@ -12,5 +13,7 @@ namespace WebClient.Wrappers
         Task<HttpResponseMessage> DeleteAsync(string requestUri);
 
         Task<HttpResponseMessage> PutAsJsonAsync<T>(string requestUri, T value);
+
+        HttpRequestHeaders DefaultRequestHeaders { get; }
     }
 }

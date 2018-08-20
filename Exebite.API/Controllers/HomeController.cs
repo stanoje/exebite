@@ -39,7 +39,7 @@ namespace Exebite.API.Controllers
         [Authorize]
         public IActionResult GoogleSignIn()
         {
-            string googleId = User.Claims.FirstOrDefault(x => x.Type.EndsWith("nameidentifier"))?.Value;
+            string googleId = User.Claims.FirstOrDefault(x => x.Type.EndsWith("sub"))?.Value;
             return _queryRepo.Query(new CustomerQueryModel { GoogleUserId = googleId })
                    .Map(x => SignInUser(x, googleId))
                    .Reduce(_ => InternalServerError(), x => _logger.LogError(x.ToString()));

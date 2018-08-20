@@ -1,12 +1,15 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Exebite.Common;
 using Exebite.DtoModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebClient.Services;
 
 namespace WebClient.Controllers
 {
+    [Authorize]
     public class CustomerAliasController : Controller
     {
         private readonly ICustomerAliasService _service;
@@ -24,7 +27,8 @@ namespace WebClient.Controllers
                 Page = 1,
                 Size = QueryConstants.MaxElements - 1
             };
-            var res = await _service.QueryAsync(queryDto).ConfigureAwait(false);
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            var res = await _service.QueryAsync(queryDto, authToken).ConfigureAwait(false);
             return View(res.Items);
         }
 
@@ -36,7 +40,8 @@ namespace WebClient.Controllers
                 return NotFound();
             }
 
-            var customerAliasDto = await _service.QueryAsync(new CustomerAliasQueryDto { Id = id, Page = 1, Size = 1 }).ConfigureAwait(false);
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            var customerAliasDto = await _service.QueryAsync(new CustomerAliasQueryDto { Id = id, Page = 1, Size = 1 }, authToken).ConfigureAwait(false);
             if (customerAliasDto.Total == 0)
             {
                 return NotFound();
@@ -60,7 +65,8 @@ namespace WebClient.Controllers
         {
             if (ModelState.IsValid)
             {
-                await _service.CreateAsync(new CreateCustomerAliasDto { Alias = model.Alias, CustomerId = model.CustomerId, RestaurantId = model.RestaurantId }).ConfigureAwait(false);
+                var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+                await _service.CreateAsync(new CreateCustomerAliasDto { Alias = model.Alias, CustomerId = model.CustomerId, RestaurantId = model.RestaurantId }, authToken).ConfigureAwait(false);
                 return RedirectToAction(nameof(Index));
             }
             return View(model);
@@ -74,7 +80,8 @@ namespace WebClient.Controllers
                 return NotFound();
             }
 
-            var customerAliasDto = await _service.QueryAsync(new CustomerAliasQueryDto { Id = id, Page = 1, Size = 1 }).ConfigureAwait(false);
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            var customerAliasDto = await _service.QueryAsync(new CustomerAliasQueryDto { Id = id, Page = 1, Size = 1 }, authToken).ConfigureAwait(false);
             if (customerAliasDto == null)
             {
                 return NotFound();
@@ -98,7 +105,8 @@ namespace WebClient.Controllers
             {
                 try
                 {
-                    await _service.UpdateAsync(id, new UpdateCustomerAliasDto { Alias = model.Alias, CustomerId = model.CustomerId, RestaurantId = model.RestaurantId }).ConfigureAwait(false);
+                    var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+                    await _service.UpdateAsync(id, new UpdateCustomerAliasDto { Alias = model.Alias, CustomerId = model.CustomerId, RestaurantId = model.RestaurantId }, authToken).ConfigureAwait(false);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -124,7 +132,8 @@ namespace WebClient.Controllers
                 return NotFound();
             }
 
-            var customerAliasDto = await _service.QueryAsync(new CustomerAliasQueryDto { Id = id, Page = 1, Size = 1 }).ConfigureAwait(false);
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            var customerAliasDto = await _service.QueryAsync(new CustomerAliasQueryDto { Id = id, Page = 1, Size = 1 }, authToken).ConfigureAwait(false);
             if (customerAliasDto.Total == 0)
             {
                 return NotFound();
@@ -138,13 +147,15 @@ namespace WebClient.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _service.DeleteByIdAsync(id).ConfigureAwait(false);
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            await _service.DeleteByIdAsync(id, authToken).ConfigureAwait(false);
             return RedirectToAction(nameof(Index));
         }
 
         private bool CustomerAliasExists(int id)
         {
-            return _service.QueryAsync(new CustomerAliasQueryDto { Id = id, Page = 1, Size = 1 }).Result.Total != 0;
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            return _service.QueryAsync(new CustomerAliasQueryDto { Id = id, Page = 1, Size = 1 }, authToken).Result.Total != 0;
         }
     }
 }

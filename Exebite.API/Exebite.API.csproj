@@ -24,6 +24,7 @@
     <PackageReference Include="Google.Apis.Oauth2.v2" Version="1.34.0.1134" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.0" />
     <PackageReference Include="Microsoft.CodeAnalysis" Version="2.8.2" />
+    <PackageReference Include="Microsoft.IdentityModel" Version="6.1.7600.16394" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.3" />
     <PackageReference Include="NLog" Version="4.5.6" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.5.4" />

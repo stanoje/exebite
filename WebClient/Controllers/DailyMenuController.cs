@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Exebite.Common;
-using Exebite.DomainModel;
 using Exebite.DtoModels;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebClient.Models;
 using WebClient.Services;
 
 namespace WebClient.Controllers
 {
+    [Authorize]
     public class DailyMenuController : Controller
     {
         private readonly IDailyMenuService _service;
@@ -32,7 +29,9 @@ namespace WebClient.Controllers
                 Page = page,
                 Size = pageSize
             };
-            var res = await _service.QueryAsync(queryDto).ConfigureAwait(false);
+
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            var res = await _service.QueryAsync(queryDto, authToken).ConfigureAwait(false);
             var pagination = new PaginatedList<DailyMenuDto>(res.Items.ToList(), res.Total, page, pageSize);
 
             return View(pagination);
@@ -64,7 +63,9 @@ namespace WebClient.Controllers
                 Page = 1,
                 Size = QueryConstants.MaxElements - 1
             };
-            var dailyMenuDto = await _service.QueryAsync(new DailyMenuQueryDto { Id = id, Page = 1, Size = 1 }).ConfigureAwait(false);
+
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            var dailyMenuDto = await _service.QueryAsync(new DailyMenuQueryDto { Id = id, Page = 1, Size = 1 }, authToken).ConfigureAwait(false);
             if (dailyMenuDto == null)
             {
                 return NotFound();
@@ -97,7 +98,8 @@ namespace WebClient.Controllers
             if (ModelState.IsValid)
             {
                 // TODO: this should be change to use CreateMenuDto because Foods is missing
-                await _service.CreateAsync(new CreateDailyMenuDto { RestaurantId = model.RestaurantId }).ConfigureAwait(false);
+                var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+                await _service.CreateAsync(new CreateDailyMenuDto { RestaurantId = model.RestaurantId }, authToken).ConfigureAwait(false);
                 return RedirectToAction(nameof(Index));
             }
             return View(model);
@@ -111,7 +113,8 @@ namespace WebClient.Controllers
                 return NotFound();
             }
 
-            var dailyMenuDto = await _service.QueryAsync(new DailyMenuQueryDto { Id = id, Page = 1, Size = 1 }).ConfigureAwait(false);
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            var dailyMenuDto = await _service.QueryAsync(new DailyMenuQueryDto { Id = id, Page = 1, Size = 1 }, authToken).ConfigureAwait(false);
             if (dailyMenuDto.Total == 0)
             {
                 return NotFound();
@@ -135,7 +138,8 @@ namespace WebClient.Controllers
             {
                 try
                 {
-                    await _service.UpdateAsync(id, new UpdateDailyMenuDto { RestaurantId = model.RestaurantId }).ConfigureAwait(false);
+                    var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+                    await _service.UpdateAsync(id, new UpdateDailyMenuDto { RestaurantId = model.RestaurantId }, authToken).ConfigureAwait(false);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -161,7 +165,8 @@ namespace WebClient.Controllers
                 return NotFound();
             }
 
-            var dailyMenuDto = await _service.QueryAsync(new DailyMenuQueryDto { Id = id, Page = 1, Size = 1 }).ConfigureAwait(false);
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            var dailyMenuDto = await _service.QueryAsync(new DailyMenuQueryDto { Id = id, Page = 1, Size = 1 }, authToken).ConfigureAwait(false);
             if (dailyMenuDto.Total == 0)
             {
                 return NotFound();
@@ -175,13 +180,15 @@ namespace WebClient.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _service.DeleteByIdAsync(id).ConfigureAwait(false);
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            await _service.DeleteByIdAsync(id, authToken).ConfigureAwait(false);
             return RedirectToAction(nameof(Index));
         }
 
         private bool DailyMenuDtoExists(int id)
         {
-            return _service.QueryAsync(new DailyMenuQueryDto { Id = id, Page = 1, Size = 1 }).Result.Total != 0;
+            var authToken = User.Claims.FirstOrDefault(claim => claim.Type == "id_token").Value;
+            return _service.QueryAsync(new DailyMenuQueryDto { Id = id, Page = 1, Size = 1 }, authToken).Result.Total != 0;
         }
     }
 }
